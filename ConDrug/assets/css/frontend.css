@@ -1,0 +1,210 @@
+.condrug-workspace,
+.condrug-access,
+.condrug-plan-selection {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(18, 38, 63, 0.08);
+    padding: 32px;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.condrug-workspace__header h1 {
+    margin: 0 0 10px;
+    font-size: 2rem;
+}
+
+.condrug-access__header h1,
+.condrug-plan-selection__header h1 {
+    margin: 0 0 12px;
+    font-size: 2rem;
+}
+
+.condrug-access__header p,
+.condrug-plan-selection__header p {
+    color: #4a5568;
+    margin: 0;
+}
+
+.condrug-workspace__header p {
+    color: #4a5568;
+    margin: 0;
+}
+
+.condrug-workspace__body {
+    margin-top: 24px;
+}
+
+.condrug-workspace__placeholder {
+    background: linear-gradient(135deg, #f7fafc, #edf2f7);
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.condrug-workspace__placeholder p {
+    color: #2d3748;
+    margin-bottom: 12px;
+}
+
+.condrug-workspace__footer {
+    margin-top: 28px;
+    font-size: 0.95rem;
+    color: #718096;
+    text-align: right;
+}
+
+.condrug-access__form,
+.condrug-plan-selection__plans {
+    margin-top: 24px;
+    display: grid;
+    gap: 18px;
+}
+
+.condrug-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.condrug-field label,
+.condrug-fieldset legend {
+    font-weight: 600;
+    color: #1a202c;
+}
+
+.condrug-field input[type="text"],
+.condrug-field input[type="email"],
+.condrug-field input[type="password"] {
+    padding: 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    color: #2d3748;
+}
+
+.condrug-field input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    outline: none;
+}
+
+.condrug-fieldset {
+    padding: 16px;
+    border: 1px dashed #cbd5e0;
+    border-radius: 6px;
+    background: #f7fafc;
+}
+
+.condrug-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: #2d3748;
+}
+
+.condrug-checkbox input {
+    margin-top: 5px;
+}
+
+.condrog-field--actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.condrug-workspace__notice {
+    background: #fffbeb;
+    border: 1px solid #f6ad55;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 16px 0;
+    color: #c05621;
+}
+
+.condrug-link {
+    color: #4c51bf;
+    text-decoration: none;
+}
+
+.condrug-link:hover {
+    text-decoration: underline;
+}
+
+.condrug-notice {
+    padding: 14px 16px;
+    border-radius: 6px;
+    margin-bottom: 18px;
+    font-weight: 500;
+}
+
+.condrug-notice--success {
+    background: #f0fff4;
+    border: 1px solid #68d391;
+    color: #276749;
+}
+
+.condrug-notice--error {
+    background: #fff5f5;
+    border: 1px solid #fc8181;
+    color: #c53030;
+}
+
+.condrug-notice--info {
+    background: #ebf8ff;
+    border: 1px solid #63b3ed;
+    color: #2b6cb0;
+}
+
+.condrug-button {
+    padding: 12px 20px;
+    background: #4c51bf;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.condrug-button:hover {
+    background: #434190;
+}
+
+.condrug-access__footer,
+.condrug-plan-selection__footer {
+    margin-top: 20px;
+    text-align: center;
+    color: #4a5568;
+}
+
+.condrug-plan-card {
+    border: 1px solid #cbd5e0;
+    border-radius: 8px;
+    padding: 20px;
+    display: grid;
+    gap: 12px;
+}
+
+.condrug-plan-card h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #2d3748;
+}
+
+.condrug-plan-card ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #4a5568;
+}
+
+.condrug-plan-card button {
+    justify-self: start;
+}
+
+.condrug-security-list {
+    margin: 0;
+    padding-left: 20px;
+    color: #4a5568;
+}
