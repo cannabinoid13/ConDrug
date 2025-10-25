@@ -17,6 +17,7 @@ class Shortcodes
     public function register(): void
     {
         add_shortcode('condrug_workspace', [$this, 'renderWorkspace']);
+        add_shortcode('condrug_openfda', [$this, 'renderOpenFDA']);
     }
 
     public function renderWorkspace($atts = [], $content = '', $tag = ''): string
@@ -41,5 +42,20 @@ class Shortcodes
         }
 
         echo esc_html__('Unable to load the requested view.', 'condrug');
+    }
+
+    public function renderOpenFDA($atts = [], $content = '', $tag = ''): string
+    {
+        $this->assets->enqueueOpenFDA();
+
+        $template = CONDRUG_PLUGIN_DIR . 'templates/openfda.php';
+
+        ob_start();
+        if (is_readable($template)) {
+            include $template;
+        } else {
+            echo '<div class="condrug-openfda"><p>' . esc_html__('OpenFDA görünümü yüklenemedi.', 'condrug') . '</p></div>';
+        }
+        return (string) ob_get_clean();
     }
 }

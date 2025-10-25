@@ -68,6 +68,9 @@ class Plugin
 
         add_action('wp_ajax_condrug_create_checkout', [$this, 'handleCheckoutAjax']);
         add_action('wp_ajax_nopriv_condrug_create_checkout', [$this, 'handleCheckoutAjax']);
+
+        add_action('wp_ajax_condrug_openfda_query', [$this, 'handleOpenFdaAjax']);
+        add_action('wp_ajax_nopriv_condrug_openfda_query', [$this, 'handleOpenFdaAjax']);
     }
 
     public function onActivation(): void
@@ -168,5 +171,168 @@ class Plugin
             wp_safe_redirect(add_query_arg('settings-updated', 'true', wp_get_referer()));
             exit;
         }
+    }
+
+    public function handleOpenFdaAjax(): void
+    {
+        check_ajax_referer('condrug_openfda', 'nonce');
+
+        $query = sanitize_text_field($_POST['q'] ?? '');
+        if (strlen($query) < 2) {
+            wp_send_json_error(['message' => __('Lütfen en az 2 karakter girin.', 'condrug')], 400);
+        }
+
+        $search = sprintf('(%1$s OR %2$s)',
+            sprintf('patient.drug.medicinalproduct.exact:"%s"', $query),
+            sprintf('patient.drug.openfda.substance_name.exact:"%s"', $query)
+        );
+
+        $base = 'https://api.fda.gov/drug/event.json';
+        $httpArgs = [
+            'timeout' => 15,
+            'headers' => [
+                'Accept' => 'application/json',
+                'User-Agent' => 'ConDrug OpenFDA Client (+https://example.com)'
+            ],
+        ];
+
+        $buildUrl = static function (array $params) use ($base): string {
+            return add_query_arg($params, $base);
+        };
+
+        $fetch = static function (array $params) use ($httpArgs, $buildUrl) {
+            $url = $buildUrl($params);
+            $response = wp_remote_get($url, $httpArgs);
+            if (is_wp_error($response)) {
+                return $response;
+            }
+            $code = wp_remote_retrieve_response_code($response);
+            $body = wp_remote_retrieve_body($response);
+            if ($code < 200 || $code >= 300) {
+                return new \WP_Error('openfda_http_error', 'OpenFDA HTTP error', [
+                    'status' => $code,
+                    'body' => $body,
+                ]);
+            }
+            $data = json_decode($body, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return new \WP_Error('openfda_parse_error', 'OpenFDA response parse error');
+            }
+            return $data;
+        };
+
+        // 1) Total reports
+        $metaRes = $fetch([
+            'search' => $search,
+            'limit' => 1,
+        ]);
+        if (is_wp_error($metaRes)) {
+            wp_send_json_error(['message' => __('OpenFDA bağlantı hatası.', 'condrug')], 502);
+        }
+        $totalReports = (int)($metaRes['meta']['results']['total'] ?? 0);
+
+        // 2) Reactions top N
+        $reactionsRes = $fetch([
+            'search' => $search,
+            'count' => 'patient.reaction.reactionmeddrapt.exact',
+            'limit' => 15,
+        ]);
+        $reactions = [];
+        if (!is_wp_error($reactionsRes)) {
+            foreach (($reactionsRes['results'] ?? []) as $row) {
+                if (!isset($row['term'], $row['count'])) {
+                    continue;
+                }
+                $reactions[] = [
+                    'term' => (string) $row['term'],
+                    'count' => (int) $row['count'],
+                ];
+            }
+        }
+
+        // 3) Sex distribution
+        $sexRes = $fetch([
+            'search' => $search,
+            'count' => 'patient.patientsex',
+            'limit' => 10,
+        ]);
+        $sexes = [];
+        if (!is_wp_error($sexRes)) {
+            foreach (($sexRes['results'] ?? []) as $row) {
+                $code = (string) ($row['term'] ?? '');
+                $label = match ($code) {
+                    '1' => __('Erkek', 'condrug'),
+                    '2' => __('Kadın', 'condrug'),
+                    default => __('Bilinmiyor', 'condrug'),
+                };
+                $sexes[] = [
+                    'term' => $label,
+                    'code' => $code,
+                    'count' => (int) ($row['count'] ?? 0),
+                ];
+            }
+        }
+
+        // 4) Age distribution (raw ages, to be binned client-side)
+        $agesRes = $fetch([
+            'search' => $search,
+            'count' => 'patient.patientage',
+            'limit' => 200,
+        ]);
+        $ages = [];
+        if (!is_wp_error($agesRes)) {
+            foreach (($agesRes['results'] ?? []) as $row) {
+                if (!isset($row['term'], $row['count'])) {
+                    continue;
+                }
+                $age = (int) $row['term'];
+                if ($age <= 0 || $age > 120) {
+                    continue; // discard outliers
+                }
+                $ages[] = [
+                    'age' => $age,
+                    'count' => (int) $row['count'],
+                ];
+            }
+        }
+
+        // 5) Yearly trend
+        $yearsRes = $fetch([
+            'search' => $search,
+            'count' => 'receivedate:1year',
+            'limit' => 30,
+        ]);
+        $years = [];
+        if (!is_wp_error($yearsRes)) {
+            foreach (($yearsRes['results'] ?? []) as $row) {
+                $time = (string) ($row['time'] ?? '');
+                $year = substr($time, 0, 4);
+                if (!ctype_digit($year)) {
+                    continue;
+                }
+                $years[] = [
+                    'year' => $year,
+                    'count' => (int) ($row['count'] ?? 0),
+                ];
+            }
+        }
+
+        $response = [
+            'query' => $query,
+            'totals' => [
+                'reports' => $totalReports,
+                'uniqueReactions' => count($reactions),
+            ],
+            'reactions' => $reactions,
+            'sexes' => $sexes,
+            'ages' => $ages,
+            'years' => $years,
+        ];
+
+        if ($totalReports === 0 && empty($reactions) && empty($sexes) && empty($ages) && empty($years)) {
+            wp_send_json_error(['message' => __('Sonuç bulunamadı.', 'condrug')]);
+        }
+
+        wp_send_json_success($response);
     }
 }

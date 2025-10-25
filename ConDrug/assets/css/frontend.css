@@ -61,6 +61,79 @@
     gap: 18px;
 }
 
+/* OpenFDA UI */
+.condrug-openfda {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(18, 38, 63, 0.08);
+    padding: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.condrug-openfda__header h1 {
+    margin: 0 0 8px;
+    font-size: 1.8rem;
+}
+
+.condrug-openfda__header p { color: #4a5568; margin: 0; }
+
+.condrug-openfda__search {
+    margin-top: 16px;
+    display: flex;
+    gap: 10px;
+}
+
+.condrug-input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    color: #2d3748;
+}
+
+.condrug-openfda__status { margin-top: 12px; }
+
+.condrug-openfda__content { margin-top: 20px; display: grid; gap: 18px; }
+
+.condrug-openfda__summary .condrug-summary-card {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    padding: 12px;
+    background: #f7fafc;
+    border: 1px dashed #cbd5e0;
+    border-radius: 6px;
+}
+
+.condrug-openfda__charts {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.condrug-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    background: #fff;
+}
+
+.condrug-card h2 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+}
+
+.condrug-openfda__pre {
+    max-height: 360px;
+    overflow: auto;
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 12px;
+    border-radius: 6px;
+}
+
 .condrug-field {
     display: flex;
     flex-direction: column;
